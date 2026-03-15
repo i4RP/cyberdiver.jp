@@ -1,0 +1,13 @@
+# Godot 4.x specific ignores
+.godot/
+
+# Godot-specific ignores
+*.tmp
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Old prototype files to clean up
+assets/
