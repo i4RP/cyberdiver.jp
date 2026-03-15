@@ -9,5 +9,5 @@
 .DS_Store
 Thumbs.db
 
-# Old prototype files to clean up
-assets/
+# Godot import files in docs
+docs/*.import
