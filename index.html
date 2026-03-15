@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERDIVER - 5vs5 FPS MOBA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a14;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            overflow-x: hidden;
+        }
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(ellipse at center, #0d1a2a 0%, #0a0a14 70%);
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                linear-gradient(0deg, transparent 24%, rgba(0, 255, 204, 0.03) 25%, rgba(0, 255, 204, 0.03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 204, 0.03) 75%, rgba(0, 255, 204, 0.03) 76%, transparent 77%),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 204, 0.03) 25%, rgba(0, 255, 204, 0.03) 26%, transparent 27%, transparent 74%, rgba(0, 255, 204, 0.03) 75%, rgba(0, 255, 204, 0.03) 76%, transparent 77%);
+            background-size: 80px 80px;
+            pointer-events: none;
+        }
+        .title {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            color: #00ffcc;
+            text-shadow: 0 0 40px rgba(0, 255, 204, 0.5), 0 0 80px rgba(0, 255, 204, 0.2);
+            margin-bottom: 0.3em;
+            animation: glitch 3s infinite;
+        }
+        .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: #8899aa;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 2em;
+        }
+        .tagline {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: #ccddee;
+            max-width: 700px;
+            line-height: 1.6;
+            margin-bottom: 3em;
+            padding: 0 1em;
+        }
+        .cta {
+            display: inline-block;
+            padding: 1em 3em;
+            border: 2px solid #00ffcc;
+            color: #00ffcc;
+            text-decoration: none;
+            font-size: 1.1rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta:hover {
+            background: #00ffcc;
+            color: #0a0a14;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
+        }
+        .features {
+            padding: 6em 2em;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #00ffcc;
+            letter-spacing: 0.1em;
+            margin-bottom: 2em;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2em;
+        }
+        .feature-card {
+            background: rgba(0, 255, 204, 0.03);
+            border: 1px solid rgba(0, 255, 204, 0.15);
+            padding: 2em;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-color: rgba(0, 255, 204, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.1);
+        }
+        .feature-card h3 {
+            color: #00ffcc;
+            font-size: 1.2rem;
+            margin-bottom: 0.8em;
+            letter-spacing: 0.05em;
+        }
+        .feature-card p {
+            color: #8899aa;
+            line-height: 1.7;
+        }
+        .section-dark {
+            background: #080812;
+            padding: 6em 2em;
+            text-align: center;
+        }
+        .section-dark h2 {
+            font-size: 2rem;
+            color: #00ffcc;
+            letter-spacing: 0.1em;
+            margin-bottom: 1em;
+        }
+        .section-dark p {
+            color: #8899aa;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 4em;
+            margin-top: 3em;
+            flex-wrap: wrap;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #00ffcc;
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+        }
+        .stat-label {
+            color: #667788;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 0.5em;
+        }
+        footer {
+            text-align: center;
+            padding: 3em;
+            color: #445566;
+            border-top: 1px solid rgba(0, 255, 204, 0.1);
+        }
+        footer a { color: #00ffcc; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        @keyframes glitch {
+            0%, 90%, 100% { opacity: 1; transform: translate(0); }
+            92% { opacity: 0.8; transform: translate(-2px, 1px); }
+            94% { opacity: 1; transform: translate(1px, -1px); }
+            96% { opacity: 0.9; transform: translate(-1px, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1 class="title">CYBERDIVER</h1>
+        <p class="subtitle">5 vs 5 FPS MOBA</p>
+        <p class="tagline">Cyber Souls, Team Life, Battle Points.<br>A new era of competitive FPS gaming on the blockchain.</p>
+        <a href="https://github.com/i4RP/cyberdiver.jp" class="cta">View on GitHub</a>
+    </div>
+
+    <section class="features">
+        <h2>CORE SYSTEMS</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Team Life System</h3>
+                <p>Each team shares a pool of 100,000 life points. Every kill, every Cyber Soul collected drains the enemy's shared life. Zero-sum competition at its finest.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Cyber Souls</h3>
+                <p>Defeated players drop Cyber Souls. Collect enemy souls to deal massive team life damage and heal yourself. Leave them behind at your own risk.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Battle Points</h3>
+                <p>Performance-based scoring: damage dealt, kills, souls collected, survival time. Every action contributes to your Battle Points.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Weapon Arsenal</h3>
+                <p>Handgun, Cyber Rifle, Sniper Rifle. Each weapon with unique stats, fire rates, and tactical advantages. Master them all.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Gate System</h3>
+                <p>Choose your spawn gate (A-E) during the 60-second briefing phase. Strategic positioning starts before the battle begins.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Blockchain Integration</h3>
+                <p>Built on Polygon/MATIC. Zero-sum game model with on-chain verification. Not play-to-earn, but play-to-compete.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-dark">
+        <h2>THE ARENA</h2>
+        <p>5-minute high-intensity battles in a cyberpunk arena. Neon-lit corridors, strategic cover points, and multiple flanking routes. Every match is a new dive into the cyber battlefield.</p>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-num">5v5</div>
+                <div class="stat-label">Team Battle</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">300s</div>
+                <div class="stat-label">Battle Time</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">100K</div>
+                <div class="stat-label">Team Life</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">3</div>
+                <div class="stat-label">Weapons</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 CYBERDIVER | <a href="https://github.com/i4RP/cyberdiver.jp">GitHub</a></p>
+    </footer>
+</body>
+</html>
