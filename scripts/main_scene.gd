@@ -628,11 +628,64 @@ func _create_enemy(ename: String, pos: Vector3):
 	col.position = Vector3(0, 0.9, 0)
 	enemy.add_child(col)
 
+	# Try to load the GLB robot model
+	var robot_scene = load("res://assets/models/robot_expressive.glb")
+	if robot_scene:
+		var robot_instance = robot_scene.instantiate()
+		robot_instance.name = "RobotModel"
+		# Scale and position the model to fit the collision shape
+		robot_instance.scale = Vector3(0.5, 0.5, 0.5)
+		robot_instance.position = Vector3(0, 0, 0)
+		# Apply red emissive material to make it look like an enemy
+		_apply_enemy_material(robot_instance)
+		enemy.add_child(robot_instance)
+
+		# Create a Body node reference for hit flash (enemy_bot.gd uses it)
+		var body_ref = MeshInstance3D.new()
+		body_ref.name = "Body"
+		body_ref.visible = false
+		var body_mat = StandardMaterial3D.new()
+		body_mat.emission_enabled = true
+		body_mat.emission = Color(0.8, 0.1, 0.15)
+		body_mat.emission_energy_multiplier = 0.5
+		body_ref.material_override = body_mat
+		enemy.add_child(body_ref)
+	else:
+		# Fallback: CSG-based robot if GLB not available
+		_create_fallback_robot(enemy)
+
+	# Enemy glow light
+	var elight = OmniLight3D.new()
+	elight.light_color = Color(1, 0.1, 0.15)
+	elight.light_energy = 1.5
+	elight.omni_range = 5.0
+	elight.position = Vector3(0, 1.2, 0)
+	elight.shadow_enabled = false
+	enemy.add_child(elight)
+
+	enemy.set_script(load("res://scripts/enemy_bot.gd"))
+	add_child(enemy)
+
+func _apply_enemy_material(node: Node):
+	# Recursively apply red emissive material to all MeshInstance3D children
+	if node is MeshInstance3D:
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = Color(0.6, 0.1, 0.1)
+		mat.metallic = 0.85
+		mat.roughness = 0.2
+		mat.emission_enabled = true
+		mat.emission = Color(0.8, 0.1, 0.15)
+		mat.emission_energy_multiplier = 0.8
+		node.material_override = mat
+	for child in node.get_children():
+		_apply_enemy_material(child)
+
+func _create_fallback_robot(enemy: CharacterBody3D):
+	# Fallback CSG robot when GLB model is not available
 	var robot_root = Node3D.new()
 	robot_root.name = "RobotModel"
 	enemy.add_child(robot_root)
 
-	# Torso material
 	var torso_mat = StandardMaterial3D.new()
 	torso_mat.albedo_color = Color(0.6, 0.1, 0.1)
 	torso_mat.metallic = 0.85
@@ -641,7 +694,6 @@ func _create_enemy(ename: String, pos: Vector3):
 	torso_mat.emission = Color(0.8, 0.1, 0.15)
 	torso_mat.emission_energy_multiplier = 0.5
 
-	# Main torso
 	var torso = MeshInstance3D.new()
 	torso.name = "Body"
 	var torso_mesh = BoxMesh.new()
@@ -651,34 +703,6 @@ func _create_enemy(ename: String, pos: Vector3):
 	torso.material_override = torso_mat
 	robot_root.add_child(torso)
 
-	# Chest plate
-	var chest = MeshInstance3D.new()
-	var chest_mesh = BoxMesh.new()
-	chest_mesh.size = Vector3(0.5, 0.5, 0.1)
-	chest.mesh = chest_mesh
-	chest.position = Vector3(0, 1.15, -0.2)
-	var chest_mat = StandardMaterial3D.new()
-	chest_mat.albedo_color = Color(0.3, 0.05, 0.05)
-	chest_mat.metallic = 0.95
-	chest_mat.roughness = 0.1
-	chest.material_override = chest_mat
-	robot_root.add_child(chest)
-
-	# Chest neon accent
-	var chest_neon = MeshInstance3D.new()
-	var cn_mesh = BoxMesh.new()
-	cn_mesh.size = Vector3(0.3, 0.06, 0.11)
-	chest_neon.mesh = cn_mesh
-	chest_neon.position = Vector3(0, 1.2, -0.21)
-	var cn_mat = StandardMaterial3D.new()
-	cn_mat.albedo_color = Color(1, 0.1, 0.2)
-	cn_mat.emission_enabled = true
-	cn_mat.emission = Color(1, 0.1, 0.2)
-	cn_mat.emission_energy_multiplier = 3.0
-	chest_neon.material_override = cn_mat
-	robot_root.add_child(chest_neon)
-
-	# Head
 	var head = MeshInstance3D.new()
 	head.name = "Head"
 	var head_mesh = BoxMesh.new()
@@ -692,7 +716,6 @@ func _create_enemy(ename: String, pos: Vector3):
 	head.material_override = head_mat
 	robot_root.add_child(head)
 
-	# Visor
 	var visor = MeshInstance3D.new()
 	var visor_mesh = BoxMesh.new()
 	visor_mesh.size = Vector3(0.3, 0.1, 0.05)
@@ -706,21 +729,6 @@ func _create_enemy(ename: String, pos: Vector3):
 	visor.material_override = visor_mat
 	robot_root.add_child(visor)
 
-	# Shoulder armor
-	for x_off in [-0.42, 0.42]:
-		var shoulder = MeshInstance3D.new()
-		var sh_mesh = BoxMesh.new()
-		sh_mesh.size = Vector3(0.22, 0.15, 0.3)
-		shoulder.mesh = sh_mesh
-		shoulder.position = Vector3(x_off, 1.35, 0)
-		var sh_mat = StandardMaterial3D.new()
-		sh_mat.albedo_color = Color(0.4, 0.08, 0.08)
-		sh_mat.metallic = 0.9
-		sh_mat.roughness = 0.15
-		shoulder.material_override = sh_mat
-		robot_root.add_child(shoulder)
-
-	# Arms
 	for x_off in [-0.42, 0.42]:
 		var arm = MeshInstance3D.new()
 		var arm_mesh = BoxMesh.new()
@@ -730,7 +738,6 @@ func _create_enemy(ename: String, pos: Vector3):
 		arm.material_override = torso_mat
 		robot_root.add_child(arm)
 
-	# Legs
 	var leg_mat = StandardMaterial3D.new()
 	leg_mat.albedo_color = Color(0.12, 0.12, 0.15)
 	leg_mat.metallic = 0.85
@@ -743,32 +750,6 @@ func _create_enemy(ename: String, pos: Vector3):
 		leg.position = Vector3(x_off, 0.3, 0)
 		leg.material_override = leg_mat
 		robot_root.add_child(leg)
-
-	# Feet
-	var foot_mat = StandardMaterial3D.new()
-	foot_mat.albedo_color = Color(0.08, 0.08, 0.1)
-	foot_mat.metallic = 0.9
-	foot_mat.roughness = 0.2
-	for x_off in [-0.15, 0.15]:
-		var foot = MeshInstance3D.new()
-		var foot_mesh = BoxMesh.new()
-		foot_mesh.size = Vector3(0.18, 0.1, 0.25)
-		foot.mesh = foot_mesh
-		foot.position = Vector3(x_off, 0.05, -0.03)
-		foot.material_override = foot_mat
-		robot_root.add_child(foot)
-
-	# Enemy glow light
-	var elight = OmniLight3D.new()
-	elight.light_color = Color(1, 0.1, 0.15)
-	elight.light_energy = 1.0
-	elight.omni_range = 4.0
-	elight.position = Vector3(0, 1.2, 0)
-	elight.shadow_enabled = false
-	robot_root.add_child(elight)
-
-	enemy.set_script(load("res://scripts/enemy_bot.gd"))
-	add_child(enemy)
 
 func _create_hud():
 	var hud = CanvasLayer.new()
