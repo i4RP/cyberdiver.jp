@@ -634,8 +634,8 @@ func _create_enemy(ename: String, pos: Vector3):
 		var robot_instance = robot_scene.instantiate()
 		robot_instance.name = "RobotModel"
 		# Scale and position the model to fit the collision shape
-		robot_instance.scale = Vector3(0.5, 0.5, 0.5)
-		robot_instance.position = Vector3(0, 0, 0)
+		robot_instance.scale = Vector3(0.9, 0.9, 0.9)
+		robot_instance.position = Vector3(0, 0.0, 0)
 		# Apply red emissive material to make it look like an enemy
 		_apply_enemy_material(robot_instance)
 		enemy.add_child(robot_instance)
