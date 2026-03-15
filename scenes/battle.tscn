@@ -16,12 +16,6 @@ sky_horizon_color = Color(0.05, 0.1, 0.15, 1)
 ground_bottom_color = Color(0.02, 0.02, 0.05, 1)
 ground_horizon_color = Color(0.05, 0.1, 0.15, 1)
 
-[node name="Battle" type="Node3D"]
-script = ExtResource("1_battle")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_1")
-
 [sub_resource type="Sky" id="Sky_1"]
 sky_material = SubResource("ProceduralSkyMaterial_1")
 
@@ -39,6 +33,12 @@ fog_enabled = true
 fog_light_color = Color(0.03, 0.08, 0.12, 1)
 fog_density = 0.005
 volumetric_fog_enabled = false
+
+[node name="Battle" type="Node3D"]
+script = ExtResource("1_battle")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 20, 0)
