@@ -1,0 +1,420 @@
+[gd_scene load_steps=8 format=3 uid="uid://battle"]
+
+[ext_resource type="Script" path="res://scripts/battle_scene.gd" id="1_battle"]
+[ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="3_hud"]
+[ext_resource type="Script" path="res://scripts/map_builder.gd" id="4_mapbuilder"]
+[ext_resource type="Script" path="res://scripts/crosshair_drawer.gd" id="5_crosshair"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
+sky_top_color = Color(0.02, 0.02, 0.08, 1)
+sky_horizon_color = Color(0.05, 0.1, 0.15, 1)
+ground_bottom_color = Color(0.02, 0.02, 0.05, 1)
+ground_horizon_color = Color(0.05, 0.1, 0.15, 1)
+
+[node name="Battle" type="Node3D"]
+script = ExtResource("1_battle")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("ProceduralSkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+ambient_light_source = 1
+ambient_light_color = Color(0.05, 0.1, 0.15, 1)
+ambient_light_energy = 0.3
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 0.5
+glow_bloom = 0.3
+fog_enabled = true
+fog_light_color = Color(0.03, 0.08, 0.12, 1)
+fog_density = 0.005
+volumetric_fog_enabled = false
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.25, 0.433, 0, 0.866, 0.5, -0.5, -0.433, 0.75, 0, 20, 0)
+light_color = Color(0.3, 0.4, 0.6, 1)
+light_energy = 0.4
+shadow_enabled = true
+
+[node name="Player" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("2_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="Head" type="Node3D" parent="Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Player/Head"]
+fov = 80.0
+
+[node name="RayCast3D" type="RayCast3D" parent="Player/Head/Camera3D"]
+target_position = Vector3(0, 0, -200)
+collision_mask = 5
+collide_with_areas = false
+collide_with_bodies = true
+
+[node name="WeaponManager" type="Node3D" parent="Player/Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, -0.2, -0.5)
+
+[node name="WeaponMesh" type="MeshInstance3D" parent="Player/Head/Camera3D/WeaponManager"]
+
+[node name="MuzzleFlash" type="OmniLight3D" parent="Player/Head/Camera3D/WeaponManager"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.5)
+light_color = Color(1, 0.8, 0.3, 1)
+light_energy = 3.0
+omni_range = 3.0
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_hud")
+
+[node name="MarginContainer" type="MarginContainer" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/MarginContainer"]
+layout_mode = 2
+
+[node name="TopHUD" type="HBoxContainer" parent="HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="TeamAlphaPanel" type="PanelContainer" parent="HUD/MarginContainer/VBoxContainer/TopHUD"]
+layout_mode = 2
+custom_minimum_size = Vector2(300, 50)
+
+[node name="TeamAlphaBar" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer/TopHUD/TeamAlphaPanel"]
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="TeamAlphaLabel" type="Label" parent="HUD/MarginContainer/VBoxContainer/TopHUD/TeamAlphaPanel"]
+layout_mode = 2
+text = "ALPHA: 100000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HSpacer1" type="Control" parent="HUD/MarginContainer/VBoxContainer/TopHUD"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TimerPanel" type="PanelContainer" parent="HUD/MarginContainer/VBoxContainer/TopHUD"]
+layout_mode = 2
+custom_minimum_size = Vector2(150, 50)
+
+[node name="TimerLabel" type="Label" parent="HUD/MarginContainer/VBoxContainer/TopHUD/TimerPanel"]
+layout_mode = 2
+text = "5:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HSpacer2" type="Control" parent="HUD/MarginContainer/VBoxContainer/TopHUD"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TeamBravoPanel" type="PanelContainer" parent="HUD/MarginContainer/VBoxContainer/TopHUD"]
+layout_mode = 2
+custom_minimum_size = Vector2(300, 50)
+
+[node name="TeamBravoBar" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer/TopHUD/TeamBravoPanel"]
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="TeamBravoLabel" type="Label" parent="HUD/MarginContainer/VBoxContainer/TopHUD/TeamBravoPanel"]
+layout_mode = 2
+text = "BRAVO: 100000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MidSpacer" type="Control" parent="HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BottomHUD" type="HBoxContainer" parent="HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="HealthPanel" type="PanelContainer" parent="HUD/MarginContainer/VBoxContainer/BottomHUD"]
+layout_mode = 2
+custom_minimum_size = Vector2(250, 40)
+
+[node name="HealthBar" type="ProgressBar" parent="HUD/MarginContainer/VBoxContainer/BottomHUD/HealthPanel"]
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="HealthLabel" type="Label" parent="HUD/MarginContainer/VBoxContainer/BottomHUD/HealthPanel"]
+layout_mode = 2
+text = "100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="BottomSpacer" type="Control" parent="HUD/MarginContainer/VBoxContainer/BottomHUD"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AmmoPanel" type="PanelContainer" parent="HUD/MarginContainer/VBoxContainer/BottomHUD"]
+layout_mode = 2
+custom_minimum_size = Vector2(250, 40)
+
+[node name="WeaponLabel" type="Label" parent="HUD/MarginContainer/VBoxContainer/BottomHUD/AmmoPanel"]
+layout_mode = 2
+text = "Handgun"
+horizontal_alignment = 1
+
+[node name="AmmoLabel" type="Label" parent="HUD/MarginContainer/VBoxContainer/BottomHUD/AmmoPanel"]
+layout_mode = 2
+text = "12 / 48"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="Crosshair" type="TextureRect" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="KillFeed" type="VBoxContainer" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_top = 80.0
+offset_right = -20.0
+offset_bottom = 300.0
+grow_horizontal = 0
+
+[node name="ReloadLabel" type="Label" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = 30.0
+offset_right = 100.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "RELOADING..."
+horizontal_alignment = 1
+visible = false
+
+[node name="DeathOverlay" type="ColorRect" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.3, 0, 0, 0.5)
+visible = false
+
+[node name="RespawnLabel" type="Label" parent="HUD/DeathOverlay"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -30.0
+offset_right = 200.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "RESPAWNING..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SpawnPointsAlpha" type="Node3D" parent="."]
+
+[node name="GateA" type="Marker3D" parent="SpawnPointsAlpha"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1, -40)
+
+[node name="GateB" type="Marker3D" parent="SpawnPointsAlpha"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1, -40)
+
+[node name="GateC" type="Marker3D" parent="SpawnPointsAlpha"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -40)
+
+[node name="GateD" type="Marker3D" parent="SpawnPointsAlpha"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1, -40)
+
+[node name="GateE" type="Marker3D" parent="SpawnPointsAlpha"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 1, -40)
+
+[node name="SpawnPointsBravo" type="Node3D" parent="."]
+
+[node name="GateA" type="Marker3D" parent="SpawnPointsBravo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1, 40)
+
+[node name="GateB" type="Marker3D" parent="SpawnPointsBravo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 1, 40)
+
+[node name="GateC" type="Marker3D" parent="SpawnPointsBravo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 40)
+
+[node name="GateD" type="Marker3D" parent="SpawnPointsBravo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1, 40)
+
+[node name="GateE" type="Marker3D" parent="SpawnPointsBravo"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 1, 40)
+
+[node name="MapGeometry" type="Node3D" parent="."]
+
+[node name="Floor" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+size = Vector3(80, 1, 100)
+use_collision = true
+
+[node name="WallNorth" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -50)
+size = Vector3(80, 8, 1)
+use_collision = true
+
+[node name="WallSouth" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 50)
+size = Vector3(80, 8, 1)
+use_collision = true
+
+[node name="WallEast" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 4, 0)
+size = Vector3(1, 8, 100)
+use_collision = true
+
+[node name="WallWest" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 4, 0)
+size = Vector3(1, 8, 100)
+use_collision = true
+
+[node name="CoverBlock1" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1.5, -10)
+size = Vector3(6, 3, 2)
+use_collision = true
+
+[node name="CoverBlock2" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.5, 10)
+size = Vector3(6, 3, 2)
+use_collision = true
+
+[node name="CoverBlock3" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+size = Vector3(4, 3, 8)
+use_collision = true
+
+[node name="CoverBlock4" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, 15)
+size = Vector3(3, 3, 6)
+use_collision = true
+
+[node name="CoverBlock5" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 1.5, -15)
+size = Vector3(3, 3, 6)
+use_collision = true
+
+[node name="Building1" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 3, 0)
+size = Vector3(10, 6, 12)
+use_collision = true
+
+[node name="Building2" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 3, 0)
+size = Vector3(10, 6, 12)
+use_collision = true
+
+[node name="Ramp1" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(0.966, 0.259, 0, -0.259, 0.966, 0, 0, 0, 1, -10, 0.8, -25)
+size = Vector3(6, 0.3, 4)
+use_collision = true
+
+[node name="Ramp2" type="CSGBox3D" parent="MapGeometry"]
+transform = Transform3D(0.966, 0.259, 0, -0.259, 0.966, 0, 0, 0, 1, 10, 0.8, 25)
+size = Vector3(6, 0.3, 4)
+use_collision = true
+
+[node name="Lighting" type="Node3D" parent="."]
+
+[node name="CyanLight1" type="OmniLight3D" parent="Lighting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 3, -20)
+light_color = Color(0, 0.8, 0.8, 1)
+light_energy = 2.0
+omni_range = 15.0
+
+[node name="CyanLight2" type="OmniLight3D" parent="Lighting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 3, 20)
+light_color = Color(0, 0.8, 0.8, 1)
+light_energy = 2.0
+omni_range = 15.0
+
+[node name="RedLight1" type="OmniLight3D" parent="Lighting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, -35)
+light_color = Color(0, 0.5, 1, 1)
+light_energy = 1.5
+omni_range = 12.0
+
+[node name="RedLight2" type="OmniLight3D" parent="Lighting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 35)
+light_color = Color(1, 0.2, 0.1, 1)
+light_energy = 1.5
+omni_range = 12.0
+
+[node name="TealAccent1" type="OmniLight3D" parent="Lighting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 2, -10)
+light_color = Color(0, 1, 0.8, 1)
+light_energy = 1.0
+omni_range = 8.0
+
+[node name="TealAccent2" type="OmniLight3D" parent="Lighting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 2, 10)
+light_color = Color(0, 1, 0.8, 1)
+light_energy = 1.0
+omni_range = 8.0
+
+[node name="CenterLight" type="OmniLight3D" parent="Lighting"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+light_color = Color(0.2, 0.6, 0.8, 1)
+light_energy = 2.5
+omni_range = 20.0
+
+[node name="MapBuilder" type="Node3D" parent="."]
+script = ExtResource("4_mapbuilder")
+
+[node name="CrosshairDraw" type="Control" parent="HUD"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("5_crosshair")
