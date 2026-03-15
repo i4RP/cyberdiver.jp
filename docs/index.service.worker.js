@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1773568356|3393822';
+const CACHE_VERSION = '1773578344|3426731';
 /** @type {string} */
 const CACHE_PREFIX = 'CYBERDIVER-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;

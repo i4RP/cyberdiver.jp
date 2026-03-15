@@ -24,7 +24,7 @@ func _build_environment():
 	env.glow_bloom = 0.15
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
 	env.glow_hdr_threshold = 0.8
-	env.tonemap_mode = Environment.TONE_MAP_ACES
+	env.tonemap_mode = 2
 	env.tonemap_exposure = 1.1
 	env.ssao_enabled = true
 	env.ssao_radius = 1.0
